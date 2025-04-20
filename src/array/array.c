@@ -30,8 +30,18 @@ void resize(array_t *arr) {
   arr->data = new;
 }
 
-void push(array_t *arr, int type, void* data) {
+void push(array_t *arr, int type, void *data) {
   if (is_full(arr)) resize(arr);
-  (arr->data+arr->count)->type=type;
-
+  arr->count++;
+  (arr->data + arr->count)->type = type;
+  if (type == DIGIT) {
+    double res_d = *(double *)data;
+    (arr->data + arr->count)->value = res_d;
+  }
+  if (type == OPERATOR) {
+    int res = *(int *)data;
+    (arr->data + arr->count)->oper = res;
+  } else {
+    ERROR("type is uncorrect", CRITICAL);
+  }
 }

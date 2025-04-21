@@ -1,0 +1,3 @@
+/home/dotharer/Documents/programming/C_C++/calculator/buils/CMakeFiles/calc_debug.dir
+/home/dotharer/Documents/programming/C_C++/calculator/buils/CMakeFiles/edit_cache.dir
+/home/dotharer/Documents/programming/C_C++/calculator/buils/CMakeFiles/rebuild_cache.dir

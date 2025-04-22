@@ -1,1 +1,0 @@
-/usr/bin/cc -rdynamic CMakeFiles/calc_debug.dir/main.c.o CMakeFiles/calc_debug.dir/calc.c.o -o calc_debug 

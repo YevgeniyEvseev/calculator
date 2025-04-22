@@ -4,27 +4,28 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-typedef struct {
-  stack_t* next;
+typedef struct Node {
+  struct Node* next;
   calc_t* data;
 } stack_t;
 
-stack_t* init() { return malloc(sizeof(stack_t)); }
+stack_t* init() {
+  stack_t* tmp = malloc(sizeof(stack_t));
+  tmp->data = NULL;
+  tmp->next = NULL;
+}
 
 void push(stack_t** root, calc_t* value) {
   stack_t* tmp = malloc(sizeof(stack_t));
-  calc_t* val_aloc = malloc(sizeof(calc_t));
-  val_aloc->oper = value->oper;
-  val_aloc->type = value->type;
-  val_aloc->value = value->value;
-  tmp->data = val_aloc;
+  tmp->data = value;
   tmp->next = *root;
   *root = tmp;
 }
 calc_t* pop(stack_t** root) {
+  stack_t* tmp = NULL;
   if (*root == NULL) return NULL;
-  int res = (*root)->data;
-  stack_t* tmp = (*root)->next;
+  calc_t* res = (*root)->data;
+  if ((*root)->next != NULL) tmp = (*root)->next;
   free(*root);
   *root = tmp;
   return res;

@@ -4,36 +4,47 @@
 #include "define.h"
 #include "stack/stack.h"
 
-double process_calc(char *expr) {
-  calc_t tmp;
-  struct stack_t *digit = init();
-  struct stack_t *oper = init();
-  while (parser(&expr, &tmp)) {
-    if (tmp.type == DIGIT) {
-      push(&digit, &tmp);
-    }
-    if (tmp.type == OPERATOR) {
-      calc_t *root = get_data_root(oper);
-      if (tmp.oper < root->type) {
-        calculate(&digit, &oper);
-      }
-      push(&oper, &tmp);
-    }
-  }
+double get_digit(struct stack_t **digit) {
+  double res;
+  if (*digit == NULL) ERROR("stack is empty", CRITICAL);
+  calc_t *tmp = pop(digit);
+  res = tmp->value;
+  free(tmp);
+  return res;
 }
 
-double calculate(struct stack_t **digit, struct stack_t **oper) {
+int get_operator(struct stack_t **oper) {
+  int res;
   calc_t *tmp = pop(oper);
-  int operator= tmp->oper;
-  double n1, n2;
+  res = tmp->oper;
+  free(tmp);
+  return res;
+}
+
+void calculate(struct stack_t **digit, struct stack_t **oper) {
+  int operator= get_operator(oper);
+  if (operator== BRACKET_OPEN || operator== BRACKET_CLOSE) return;
+  double n1 = get_digit(digit);
   switch (operator) {
     case PLUS:
-      /* code */
+      n1 += get_digit(digit);
       break;
-
+    case MINUS:
+      n1 = get_digit(digit) - n1;
+      break;
+    case MUL:
+      n1 *= get_digit(digit);
+      break;
+    case DIV:
+      n1 = get_digit(digit) / n1;
+      break;
     default:
       break;
   }
+  calc_t *tmp;
+  add_calc_t(&tmp, DIGIT, &n1);
+  push(digit, tmp);
+  // return n1;
 }
 
 // return digit(0..9) or -1 if not digit
@@ -59,28 +70,65 @@ double string_to_double(char **s) {
       c++;
     }
   }
-  printf("res = %lf\n", res);
+  // printf("res = %lf\n", res);
   *s = c;
   return res;
 }
 
-void add_calc_t(calc_t *data, int type, void *value) {
-  if (type == DIGIT) {
-    double res_d = *(double *)value;
-    data->value = res_d;
+int string_to_oper(char **s) {
+  int res;
+  char *c = *s;
+  switch (*c) {
+    case '+':
+      res = PLUS;
+      break;
+    case '-':
+      res = MINUS;
+      break;
+    case '*':
+      res = MUL;
+      break;
+    case '/':
+      res = DIV;
+      break;
+    case '(':
+      res = BRACKET_OPEN;
+      break;
+    case ')':
+      res = BRACKET_CLOSE;
+      break;
+    default:
+      break;
   }
-  if (type == OPERATOR) {
-    int res = *(int *)value;
-    data->oper = res;
-  } else {
-    ERROR("type is uncorrect", CRITICAL);
+  c++;
+  *s = c;
+  return res;
+}
+
+void add_calc_t(calc_t **data, int type, void *value) {
+  *data = malloc(sizeof(calc_t));
+  switch (type) {
+    case DIGIT:
+      double res_d = *(double *)value;
+      (*data)->type = DIGIT;
+      (*data)->value = res_d;
+      break;
+    case OPERATOR:
+      int res = *(int *)value;
+      (*data)->oper = res;
+      (*data)->type = OPERATOR;
+      break;
+    default:
+      ERROR("type is uncorrect", CRITICAL);
+      break;
   }
 }
 
-int parser(char **str, calc_t *array) {
+int parser(char **str, calc_t **array) {
   // int check_bracket = 0;
   int oper;
-  switch (**str++) {
+  char *tmp = *str;
+  switch (**str) {
     case '0':
     case '1':
     case '2':
@@ -92,21 +140,20 @@ int parser(char **str, calc_t *array) {
     case '8':
     case '9':
       double n = string_to_double(str);
-      new_calc_t(array, DIGIT, &n);
+      add_calc_t(array, DIGIT, &n);
+      break;
     case '+':
-      oper = PLUS;
     case '-':
-      oper = MINUS;
     case '*':
-      oper = MUL;
     case '/':
-      oper = DIV;
+    case '(':
+    case ')':
+      oper = string_to_oper(str);
       add_calc_t(array, OPERATOR, &oper);
       break;
     case '=':
       return FALSE;
       break;
-      ;
 
     default:
       // if(func());
@@ -115,4 +162,35 @@ int parser(char **str, calc_t *array) {
   }
 
   return TRUE;
+}
+
+double process_calc(char *expr) {
+  calc_t *tmp;
+  double res;
+  struct stack_t *digit = NULL;
+  struct stack_t *oper = NULL;
+  while (parser(&expr, &tmp)) {
+    if (tmp->type == DIGIT) {
+      push(&digit, tmp);
+    }
+    if (tmp->type == OPERATOR) {
+      if (oper != NULL) {
+        calc_t *root = get_data_root(oper);
+        if (root->oper == BRACKET_CLOSE) {
+          do {
+            calculate(&digit, &oper);
+            root = get_data_root(oper);
+          } while (root->oper != BRACKET_OPEN);
+        }
+        if (tmp->oper < root->oper) {
+          calculate(&digit, &oper);
+        }
+      }
+      push(&oper, tmp);
+    }
+  }
+  while (oper != NULL) {
+    calculate(&digit, &oper);
+  }
+  return get_digit(&digit);
 }

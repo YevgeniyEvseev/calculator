@@ -5,9 +5,10 @@
 #include "define.h"
 
 int main() {
-  char d[10] = "3.234+";
-  char *c = d;
-  double n = string_to_double(&c);
-  printf("%lf == %c", n, *c);
+  char d[20] = "(2-3.2*2)*4=";
+  char *tmp_s = d;
+  double p = process_calc(tmp_s);
+  printf("%lf", p);
+
   // ERROR("dddd", 1);
 }

@@ -6,5 +6,4 @@ add_executable(calc_debug
 main.c
 calc.c
 stack/stack.c 
-array/array.c
 )

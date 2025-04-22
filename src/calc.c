@@ -21,6 +21,25 @@ int get_operator(struct stack_t **oper) {
   return res;
 }
 
+void add_calc_t(calc_t **data, int type, void *value) {
+  *data = malloc(sizeof(calc_t));
+  switch (type) {
+    case DIGIT:
+      double res_d = *(double *)value;
+      (*data)->type = DIGIT;
+      (*data)->value = res_d;
+      break;
+    case OPERATOR:
+      int res = *(int *)value;
+      (*data)->oper = res;
+      (*data)->type = OPERATOR;
+      break;
+    default:
+      ERROR("type is uncorrect", CRITICAL);
+      break;
+  }
+}
+
 void calculate(struct stack_t **digit, struct stack_t **oper) {
   int operator= get_operator(oper);
   if (operator== BRACKET_OPEN || operator== BRACKET_CLOSE) return;
@@ -103,25 +122,6 @@ int string_to_oper(char **s) {
   c++;
   *s = c;
   return res;
-}
-
-void add_calc_t(calc_t **data, int type, void *value) {
-  *data = malloc(sizeof(calc_t));
-  switch (type) {
-    case DIGIT:
-      double res_d = *(double *)value;
-      (*data)->type = DIGIT;
-      (*data)->value = res_d;
-      break;
-    case OPERATOR:
-      int res = *(int *)value;
-      (*data)->oper = res;
-      (*data)->type = OPERATOR;
-      break;
-    default:
-      ERROR("type is uncorrect", CRITICAL);
-      break;
-  }
 }
 
 int parser(char **str, calc_t **array) {

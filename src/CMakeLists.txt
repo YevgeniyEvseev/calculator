@@ -7,3 +7,5 @@ main.c
 calc.c
 stack/stack.c 
 )
+
+target_link_libraries(calc_debug PRIVATE m )

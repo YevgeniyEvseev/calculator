@@ -1,8 +1,12 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "define.h"
 #include "stack/stack.h"
+
+const char *func_arithm[COUNT_FUNC] = {"sin",  "cos", "tan",
+                                       "sqrt", "ln",  "pow"};
 
 double get_digit(struct stack_t **digit) {
   double res;
@@ -40,6 +44,31 @@ void add_calc_t(calc_t **data, int type, void *value) {
   }
 }
 
+int is_alfavit(char *s) {
+  return ((*s >= 'a' && *s <= 'z') || (*s >= 'A' && *s <= 'Z'));
+}
+
+// return number function or (-1) if not
+int string_to_func(char **s) {
+  int res = -1;
+  int find_arr = -1;
+  if (!is_alfavit(*s)) return res;
+  for (int i = 0; i < COUNT_FUNC; i++) {
+    char *c = *s;
+    int count = 0;
+    while (TRUE) {
+      if (*c != *(func_arithm[i] + count)) break;
+      c++;
+      count++;
+      if (*(func_arithm[i] + count) == '\0') {
+        *s = c;
+        return i;
+      }
+    }
+  }
+  return res;
+}
+
 void calculate(struct stack_t **digit, struct stack_t **oper) {
   int operator= get_operator(oper);
   if (operator== BRACKET_OPEN || operator== BRACKET_CLOSE) return;
@@ -57,7 +86,14 @@ void calculate(struct stack_t **digit, struct stack_t **oper) {
     case DIV:
       n1 = get_digit(digit) / n1;
       break;
+    case SIN:
+      n1 = sin(n1);
+      break;
+    case COS:
+      n1 = cos(n1);
+      break;
     default:
+
       break;
   }
   calc_t *tmp;
@@ -156,8 +192,10 @@ int parser(char **str, calc_t **array) {
       break;
 
     default:
-      // if(func());
-      // else ERROR("expresion is uncorrect",CRITICAL);
+      if ((oper = string_to_func(str)) == -1)
+        ERROR("FUNCTION IS NOT FIND", CRITICAL);
+      oper += FUNC;
+      add_calc_t(array, OPERATOR, &oper);
       break;
   }
 
@@ -174,7 +212,7 @@ double process_calc(char *expr) {
       push(&digit, tmp);
     }
     if (tmp->type == OPERATOR) {
-      if (oper != NULL) {
+      if (oper != NULL && tmp->oper != BRACKET_OPEN) {
         calc_t *root = get_data_root(oper);
         if (root->oper == BRACKET_CLOSE) {
           do {

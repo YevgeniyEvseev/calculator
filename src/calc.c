@@ -6,7 +6,7 @@
 #include "stack/stack.h"
 
 const char *func_arithm[COUNT_FUNC] = {"sin",  "cos", "tan",
-                                       "sqrt", "ln",  "pow"};
+                                       "sqrt", "ln",  "log"};
 
 double get_digit(struct stack_t **digit) {
   double res;
@@ -212,6 +212,12 @@ double process_calc(char *expr) {
       push(&digit, tmp);
     }
     if (tmp->type == OPERATOR) {
+      if (tmp->oper == MINUS && oper == NULL) {
+        double d = 0;
+        calc_t *null_d;
+        add_calc_t(&null_d, DIGIT, &d);
+        push(&digit, null_d);
+      }
       if (oper != NULL && tmp->oper != BRACKET_OPEN) {
         calc_t *root = get_data_root(oper);
         if (root->oper == BRACKET_CLOSE) {

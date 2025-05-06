@@ -8,12 +8,12 @@
 #define TRUE 1
 #define FALSE 0
 #define MIN_ARRAY 8
-#define COUNT_FUNC 6
+#define COUNT_FUNC 7
 
 enum { OPERATOR = 887, DIGIT = 888 };
 
 enum { BRACKET_OPEN = 1, PLUS, MINUS, MUL, DIV, FUNC, BRACKET_CLOSE = 20 };
-enum { SIN = 6, COS, TAN, SQRT, LN, POW };
+enum { SIN = 6, COS, TAN, SQRT, LN, LOG, POW, MOD };
 
 #define ERR_1(NAME_ERROR) printf("%s %d %s", __FILE__, __LINE__, NAME_ERROR);
 
@@ -21,7 +21,7 @@ enum { SIN = 6, COS, TAN, SQRT, LN, POW };
   do {                                                  \
     printf("%s %d %s", __FILE__, __LINE__, NAME_ERROR); \
     if (type_error) {                                   \
-      printf("");                                       \
+      printf(" ");                                      \
       abort();                                          \
     }                                                   \
   } while (0)

@@ -5,8 +5,8 @@
 #include "define.h"
 #include "stack/stack.h"
 
-const char *func_arithm[COUNT_FUNC] = {"sin",  "cos", "tan",
-                                       "sqrt", "ln",  "log"};
+const char *func_arithm[COUNT_FUNC] = {"sin", "cos", "tan", "sqrt",
+                                       "ln",  "log", "mod"};
 
 double get_digit(struct stack_t **digit) {
   double res;
@@ -92,6 +92,24 @@ void calculate(struct stack_t **digit, struct stack_t **oper) {
     case COS:
       n1 = cos(n1);
       break;
+    case TAN:
+      n1 = tan(n1);
+      break;
+    case LN:
+      n1 = log(n1);
+      break;
+    case LOG:
+      n1 = log10(n1);
+      break;
+    case SQRT:
+      n1 = pow(n1, 0.5);
+      break;
+    case POW:
+      n1 = pow(get_digit(digit), n1);
+      break;
+    case MOD:
+      n1 = fmod(get_digit(digit), n1);
+      break;
     default:
 
       break;
@@ -146,6 +164,9 @@ int string_to_oper(char **s) {
     case '/':
       res = DIV;
       break;
+    case '^':
+      res = POW;
+      break;
     case '(':
       res = BRACKET_OPEN;
       break;
@@ -184,6 +205,7 @@ int parser(char **str, calc_t **array) {
     case '/':
     case '(':
     case ')':
+    case '^':
       oper = string_to_oper(str);
       add_calc_t(array, OPERATOR, &oper);
       break;
@@ -212,7 +234,7 @@ double process_calc(char *expr) {
       push(&digit, tmp);
     }
     if (tmp->type == OPERATOR) {
-      if (tmp->oper == MINUS && oper == NULL) {
+      if (tmp->oper == MINUS && (oper == NULL || *(expr - 2) == '(')) {
         double d = 0;
         calc_t *null_d;
         add_calc_t(&null_d, DIGIT, &d);
@@ -226,7 +248,7 @@ double process_calc(char *expr) {
             root = get_data_root(oper);
           } while (root->oper != BRACKET_OPEN);
         }
-        if (tmp->oper < root->oper) {
+        while (oper != NULL && tmp->oper <= root->oper) {
           calculate(&digit, &oper);
         }
       }

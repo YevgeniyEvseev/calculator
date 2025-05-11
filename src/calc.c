@@ -70,8 +70,8 @@ int string_to_func(char **s) {
 }
 
 void calculate(struct stack_t **digit, struct stack_t **oper) {
-  int operator= get_operator(oper);
-  if (operator== BRACKET_OPEN || operator== BRACKET_CLOSE) return;
+  int operator = get_operator(oper);
+  if (operator == BRACKET_OPEN || operator == BRACKET_CLOSE) return;
   double n1 = get_digit(digit);
   switch (operator) {
     case PLUS:
@@ -111,7 +111,7 @@ void calculate(struct stack_t **digit, struct stack_t **oper) {
       n1 = fmod(get_digit(digit), n1);
       break;
     default:
-
+      ERROR("operator is uncorrect", CRITICAL);
       break;
   }
   calc_t *tmp;
@@ -214,8 +214,10 @@ int parser(char **str, calc_t **array) {
       break;
 
     default:
-      if ((oper = string_to_func(str)) == -1)
-        ERROR("FUNCTION IS NOT FIND", CRITICAL);
+      if ((oper = string_to_func(str)) < 0) {
+        ERROR("Operator or function is unknown", ALARM);
+        return ERROR_ALARM;
+      }
       oper += FUNC;
       add_calc_t(array, OPERATOR, &oper);
       break;
@@ -234,7 +236,7 @@ double process_calc(char *expr) {
       push(&digit, tmp);
     }
     if (tmp->type == OPERATOR) {
-      if (tmp->oper == MINUS && (oper == NULL || *(expr - 2) == '(')) {
+      if (tmp->oper == MINUS && (digit == NULL || *(expr - 2) == '(')) {
         double d = 0;
         calc_t *null_d;
         add_calc_t(&null_d, DIGIT, &d);
@@ -250,6 +252,7 @@ double process_calc(char *expr) {
         }
         while (oper != NULL && tmp->oper <= root->oper) {
           calculate(&digit, &oper);
+          if (oper != NULL) root = get_data_root(oper);
         }
       }
       push(&oper, tmp);

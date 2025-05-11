@@ -2,13 +2,15 @@
 #define DEFINE_H
 
 #define CRITICAL 1
-#define WARNING 0
+#define ALARM 0
 #define OK 1
 #define FAIL 0
 #define TRUE 1
 #define FALSE 0
 #define MIN_ARRAY 8
 #define COUNT_FUNC 7
+#define NO_ERROR 1
+#define ERROR_ALARM -1
 
 enum { OPERATOR = 887, DIGIT = 888 };
 

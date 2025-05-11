@@ -22,8 +22,8 @@ START_TEST(arithm_2) {
 END_TEST
 
 START_TEST(arithm_3) {
-  char *tmp_s = "2+5*3=";
-  double res = 17;
+  char *tmp_s = "7-2+5*3=";
+  double res = 20;
   double p = process_calc(tmp_s);
   ck_assert_double_eq(res, p);
 }
@@ -62,8 +62,8 @@ START_TEST(arithm_7) {
 END_TEST
 
 START_TEST(sqrt_1) {
-  char *tmp_s = "sqrt4=";
-  double res = 2;
+  char *tmp_s = "-sqrt4=";
+  double res = -2;
   double p = process_calc(tmp_s);
   ck_assert_double_eq(res, p);
 }
